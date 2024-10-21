@@ -15,12 +15,19 @@ struct ContentView: View {
     
     let tipPercentages = [10, 15, 20, 25, 0]
     
-    var totalPerPerson: Double {
-        let peopleCount = Double(numberOfPeople + 2)
+    var totalCheckAmount: Double {
         let tipSelection = Double(tipPercentage)
         
         let tipValue = checkAmount / 100 * tipSelection
         let grandTotal = checkAmount + tipValue
+        
+        return grandTotal
+    }
+    
+    var totalPerPerson: Double {
+        let peopleCount = Double(numberOfPeople + 2)
+        
+        let grandTotal = totalCheckAmount
         let amountPerPerson = grandTotal / peopleCount
         
         return amountPerPerson
@@ -43,16 +50,27 @@ struct ContentView: View {
                 }
                 
                 Section("How much do you want to tip?") {
+                    // Picker with pre selection and segmented
+//                    Picker("Tip percentage", selection: $tipPercentage) {
+//                        ForEach(tipPercentages, id: \.self) {
+//                            Text($0, format: .percent)
+//                        }
+//                    }
+//                    .pickerStyle(.segmented)
                     Picker("Tip percentage", selection: $tipPercentage) {
-                        ForEach(tipPercentages, id: \.self) {
+                        ForEach(0..<101) {
                             Text($0, format: .percent)
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .pickerStyle(.navigationLink)
                 }
                 
                 Section("Amount per person") {
                     Text(totalPerPerson, format: .currency(code: Locale.current.currency?.identifier ?? "BRL"))
+                }
+                
+                Section("Total check amount") {
+                    Text(totalCheckAmount, format: .currency(code: Locale.current.currency?.identifier ?? "BRL"))
                 }
             }
             .navigationTitle("WeSplit")
