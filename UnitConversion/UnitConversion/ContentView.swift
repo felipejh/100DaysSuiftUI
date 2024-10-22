@@ -11,6 +11,7 @@ struct ContentView: View {
     let temperatures = ["Celsius", "Fahrenheit", "Kelvin"]
     let lengths = ["Meters", "Km", "Feet", "Yards", "Miles"]
     let times = ["Seconds", "Minutes", "Hours", "Days"]
+    let volumes = ["ml", "L", "Gallons"]
     
     @State private var selectedTemperatureFrom = "Celsius"
     @State private var selectedTemperatureTo = "Fahrenheit"
@@ -23,6 +24,12 @@ struct ContentView: View {
     @State private var selectedTimeFrom = "Seconds"
     @State private var selectedTimeTo = "Minutes"
     @State private var valueTimeFrom: Double = 60.0
+    
+    @State private var selectedVolumeFrom = "ml"
+    @State private var selectedVolumeTo = "L"
+    @State private var valueVolumeFrom: Double = 1000.0
+    
+    @FocusState var isKeyboardVisible: Bool
     
     var convertedTemperature: Double {
         var convertedValue = valueTemperatureFrom
@@ -198,6 +205,39 @@ struct ContentView: View {
         return convertedValue
     }
     
+    var convertedVolume: Double {
+        var convertedValue = valueVolumeFrom
+        
+        if selectedVolumeFrom == "ml" {
+            if selectedVolumeTo == "L" {
+                convertedValue = valueVolumeFrom / 1000
+            }
+            if selectedVolumeTo == "Gallons" {
+                convertedValue = valueVolumeFrom / 3785.41
+            }
+        }
+        
+        if selectedVolumeFrom == "L" {
+            if selectedVolumeTo == "ml" {
+                convertedValue = valueVolumeFrom * 1000
+            }
+            if selectedVolumeTo == "Gallons" {
+                convertedValue = valueVolumeFrom * 3.78541
+            }
+        }
+        
+        if selectedVolumeFrom == "Gallons" {
+            if selectedVolumeTo == "ml" {
+                convertedValue = valueVolumeFrom * 3785.41
+            }
+            if selectedVolumeTo == "L" {
+                convertedValue = valueVolumeFrom * 1.0
+            }
+        }
+        
+        return convertedValue
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -215,6 +255,7 @@ struct ContentView: View {
                         TextField("23.0", value: $valueTemperatureFrom, format: .number.precision(.fractionLength(1)))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
+                            .focused($isKeyboardVisible)
                     }
                     
                     Picker("To", selection: $selectedTemperatureTo) {
@@ -243,6 +284,7 @@ struct ContentView: View {
                         Text(selectedLengthFrom)
                         TextField("100.0", value: $valueLengthFrom, format: .number.precision(.fractionLength(2)))
                             .keyboardType(.decimalPad)
+                            .focused($isKeyboardVisible)
                             .multilineTextAlignment(.trailing)
                     }
                     
@@ -271,6 +313,8 @@ struct ContentView: View {
                     HStack {
                         Text(selectedTimeFrom)
                         TextField("60.0", value: $valueTimeFrom, format: .number.precision(.fractionLength(2)))
+                            .keyboardType(.decimalPad)
+                            .focused($isKeyboardVisible)
                             .multilineTextAlignment(.trailing)
                     }
                     
@@ -289,10 +333,43 @@ struct ContentView: View {
                 }
                 
                 Section("Volume") {
+                    Picker("From", selection: $selectedVolumeFrom) {
+                        ForEach(volumes, id: \.self) {
+                            Text($0)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                     
+                    HStack {
+                        Text(selectedVolumeFrom)
+                        TextField("1000.0", value: $valueVolumeFrom, format: .number.precision(.fractionLength(2)))
+                            .keyboardType(.decimalPad)
+                            .focused($isKeyboardVisible)
+                            .multilineTextAlignment(.trailing)
+                    }
+                    
+                    Picker("To", selection: $selectedVolumeTo) {
+                        ForEach(volumes, id: \.self) {
+                            Text($0)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    HStack {
+                        Text(selectedVolumeTo)
+                        Spacer()
+                        Text("\(convertedVolume, specifier: "%.2f")")
+                    }
                 }
             }
             .navigationTitle("Unit converstion")
+            .toolbar {
+                if isKeyboardVisible {
+                    Button("Done") {
+                        isKeyboardVisible.toggle()
+                    }
+                }
+            }
         }
     }
 }
