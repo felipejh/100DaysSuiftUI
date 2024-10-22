@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     let temperatures = ["Celsius", "Fahrenheit", "Kelvin"]
     let lengths = ["Meters", "Km", "Feet", "Yards", "Miles"]
+    let times = ["Seconds", "Minutes", "Hours", "Days"]
     
     @State private var selectedTemperatureFrom = "Celsius"
     @State private var selectedTemperatureTo = "Fahrenheit"
@@ -18,6 +19,10 @@ struct ContentView: View {
     @State private var selectedLengthFrom = "Meters"
     @State private var selectedLengthTo = "Km"
     @State private var valueLengthFrom: Double = 100.0
+    
+    @State private var selectedTimeFrom = "Seconds"
+    @State private var selectedTimeTo = "Minutes"
+    @State private var valueTimeFrom: Double = 60.0
     
     var convertedTemperature: Double {
         var convertedValue = valueTemperatureFrom
@@ -100,7 +105,6 @@ struct ContentView: View {
                 convertedValue = valueLengthFrom / 3.28084
             }
             if selectedLengthTo == "Miles" {
-                let milesPerKm = 0.621371
                 let milesPerFoot = 0.000189394
                 convertedValue = valueLengthFrom * milesPerFoot
             }
@@ -117,9 +121,7 @@ struct ContentView: View {
                 convertedValue = valueLengthFrom / 0.9144
             }
             if selectedLengthTo == "Miles" {
-                let milesPerKm = 0.621371
                 let milesPerYard = 0.000568181
-                let milesPerFoot = 0.000189394
                 convertedValue = valueLengthFrom * milesPerYard
             }
         }
@@ -136,6 +138,60 @@ struct ContentView: View {
             }
             if selectedLengthTo == "Yards" {
                 convertedValue = valueLengthFrom * 1760
+            }
+        }
+        
+        return convertedValue
+    }
+    
+    var convertedTime: Double {
+        var convertedValue = valueTimeFrom
+        
+        if selectedTimeFrom == "Seconds" {
+            if selectedTimeTo == "Minutes" {
+                convertedValue = valueTimeFrom / 60
+            }
+            if selectedTimeTo == "Hours" {
+                convertedValue = valueTimeFrom / 3600
+            }
+            if selectedTimeTo == "Days" {
+                convertedValue = valueTimeFrom / 86400
+            }
+        }
+        
+        if selectedTimeFrom == "Minutes" {
+            if selectedTimeTo == "Seconds" {
+                convertedValue = valueTimeFrom * 60
+            }
+            if selectedTimeTo == "Hours" {
+                convertedValue = valueTimeFrom / 60
+            }
+            if selectedTimeTo == "Days" {
+                convertedValue = valueTimeFrom / 1440
+            }
+        }
+        
+        if selectedTimeFrom == "Hours" {
+            if selectedTimeTo == "Seconds" {
+                convertedValue = valueTimeFrom * 3600
+            }
+            if selectedTimeTo == "Minutes" {
+                convertedValue = valueTimeFrom * 60
+            }
+            if selectedTimeTo == "Days" {
+                convertedValue = valueTimeFrom / 24
+            }
+        }
+        
+        if selectedTimeFrom == "Days" {
+            if selectedTimeTo == "Seconds" {
+                convertedValue = valueTimeFrom * 86400
+            }
+            if selectedTimeTo == "Minutes" {
+                convertedValue = valueTimeFrom * 1440
+            }
+            if selectedTimeTo == "Hours" {
+                convertedValue = valueTimeFrom * 24
             }
         }
         
@@ -194,7 +250,8 @@ struct ContentView: View {
                         ForEach(lengths, id: \.self) {
                             Text($0)
                         }
-                    }.pickerStyle(.segmented)
+                    }
+                    .pickerStyle(.segmented)
                     
                     HStack {
                         Text(selectedLengthTo)
@@ -204,7 +261,31 @@ struct ContentView: View {
                 }
                 
                 Section("Time") {
+                    Picker("From", selection: $selectedTimeFrom) {
+                        ForEach(times, id: \.self) {
+                            Text($0)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                     
+                    HStack {
+                        Text(selectedTimeFrom)
+                        TextField("60.0", value: $valueTimeFrom, format: .number.precision(.fractionLength(2)))
+                            .multilineTextAlignment(.trailing)
+                    }
+                    
+                    Picker("To", selection: $selectedTimeTo) {
+                        ForEach(times, id: \.self) {
+                            Text($0)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    HStack {
+                        Text(selectedTimeTo)
+                        Spacer()
+                        Text("\(convertedTime, specifier: "%.2f")")
+                    }
                 }
                 
                 Section("Volume") {
